@@ -1,0 +1,20 @@
+{
+  "name": "restaurant-explorer",
+  "version": "1.0.0",
+  "description": "",
+  "scripts": {
+    "client": "cd client && npm start",
+    "server": "nodemon server/index.js",
+    "dev": "concurrently --kill-others-on-fail \"npm run server\" \"npm run client\""
+  },
+  "author": "kyle",
+  "license": "ISC",
+  "devDependencies": {
+    "concurrently": "^4.1.0"
+  },
+  "dependencies": {
+    "axios": "^0.18.0",
+    "body-parser": "^1.18.3",
+    "express": "^4.16.4"
+  }
+}
