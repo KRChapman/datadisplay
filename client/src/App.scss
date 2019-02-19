@@ -1,3 +1,6 @@
+
+@import "./sharedcomponents/card/card.scss";
+
 .the-form {
 
   border: 1px solid brown;
@@ -10,4 +13,22 @@
   to {
     transform: rotate(360deg);
   }
+}
+
+.cards-container{
+  display: flex;
+  justify-content: center;
+}
+
+.base-btn{
+  width: 100px;
+  border: 2px solid purple;
+}
+.confirm-button{
+background: green;
+}
+
+.cancel-button{
+
+  background: red;
 }
