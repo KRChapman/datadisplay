@@ -6,7 +6,7 @@ const ButtonCustom = (props) => {
   let btnType = props.type ? props.type : "";
   let btnClass = `base-btn ${btnType}`
   return (
-    <button onClick={props.clickEvent} className={btnClass}>{props.children}</button>
+    <button onClick={props.clickEvent} className={btnClass} value={props.children}>{props.children}</button>
   )
 }
 

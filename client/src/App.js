@@ -5,6 +5,9 @@ import DataDisplay from './container/datadisplay/datadisplay';
 import ButtonCustom from './sharedcomponents/ButtonCustom/ButtonCustom';
 import UserInput from './sharedcomponents/UserInput/UserInput';
 import RadioForm from './sharedcomponents/RadioForm/RadioForm';
+import UserSelect from './sharedcomponents/UserSelect/UserSelect';
+import Selection from './container/Selection/Selection';
+
 
 const backEndAPIs = {
   mdb: {
@@ -24,6 +27,9 @@ const backEndAPIs = {
 
 }
 
+// { title: "placeholder", user: "t", listItems: [{ userInput: "here", numbers: [1, 2, 3, 4] }], _id: "123" },
+// { title: "2placeholder", user: "2t", listItems: [{ userInput: "2here", numbers: [1, 2, 3, 4] }], _id: "1234" }
+
 class App extends Component {
 
   constructor() {
@@ -31,8 +37,7 @@ class App extends Component {
       this.state = {
 
         data : [
-          { title: "placeholder", user: "t", listItems: [{ userInput: "here", numbers: [1, 2, 3, 4] }], _id: "123"},
-          { title: "2placeholder", user: "2t", listItems: [{ userInput: "2here", numbers: [1, 2, 3, 4] }], _id: "1234" }
+         
       ],
       // need log in page user authentication and authorization
         user: "default",
@@ -43,7 +48,7 @@ class App extends Component {
         backEnd: "mdb",
         backEndAPIs: backEndAPIs.mdb,
         usersList: [],
-        currentUser: "",
+        currentUser: "default",
     }
 
   
@@ -65,6 +70,12 @@ class App extends Component {
     if(this.state.data !== prevState.data){
 
     }
+
+    if(prevState.currentUser !== this.state.currentUser){
+      Promise.resolve(this.showDataToDisplay()).then( data => {
+        this.setState({ data });
+      }) 
+    }
   }
 
   showUsers = () => {
@@ -80,18 +91,28 @@ class App extends Component {
   }
 
   showDataToDisplay = () =>{
-    let userUrl = `${this.state.backEndAPIs.view}/${this.state.user}`
-
-   return fetch(userUrl)
+    if (this.state.currentUser === ""){
+      return [];
+    }
+    let userUrl = `${this.state.backEndAPIs.view}/${this.state.currentUser}`
+  
+   let a = fetch(userUrl)
       .then(function (response) {  
         return response.json();
+      },err =>{
+                console.log("err", err);
+        return null;
       })
       .then(function (myJson) {
         return myJson;
 
-      }).catch(err => {
-        console.log("err", err)
       })
+
+    return a;
+      // .catch(err => {
+      //   console.log("err", err);
+      //   return null;
+      // })
     
   }
 
@@ -163,9 +184,7 @@ class App extends Component {
         this.submitDataInput(myJson);
         console.log("asssssss",JSON.stringify(myJson));
       });
-    /// GET DATA FROM STATE 
-    /// SEND TO BCK END
-    /// CLEAR INPUT DATA IN STATE (call handle clear)
+
   }
 
   submitDataInput(newData){
@@ -175,11 +194,12 @@ class App extends Component {
         title: "", userInput: "", numbers: [],
        data: [...currentState.data]
        }
-      if (currentState.user === newData.user){
+   //    debugger;
+      if (currentState.currentUser === newData.user){
         clearedState.data  = clearedState.data.concat(newData);
       }
- 
-      return { ...clearedState}
+      
+      return {...clearedState}
     });
     this.setState();
   }
@@ -195,13 +215,18 @@ class App extends Component {
     // });
   }
 
+  hadleChangeUser = (e) =>{
+   let name = e.target.value;
+   console.log('name', name);
+    this.setState({ currentUser: name });
+  }
+  
   render() {
     return (
       <div className="App">
       <menu>filter data from certain users 
-       <div className="selection-container">
-            <RadioForm changeRadio={this.handleChangeRadio} />
-       </div>
+    
+        <Selection changeRadio={this.handleChangeRadio} changeUser={this.hadleChangeUser} usersList={this.state.usersList}></Selection>
         
       </menu>
         <div>So let me get this straight... the song was originally a Danish pop song by Lis Soreson and then Ednaswap made a more grungy cover with original english lyrics and then Natalie Imbrugila made the cover in the original pop style with the lyrics from Ednaswap.</div>
