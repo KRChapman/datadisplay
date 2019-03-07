@@ -3,17 +3,19 @@ import logo from './logo.svg';
 import './App.scss';
 import DataDisplay from './container/datadisplay/datadisplay';
 import ButtonCustom from './sharedcomponents/ButtonCustom/ButtonCustom';
-import UserInput from './sharedcomponents/UserInput/UserInput';
+import SubjectInput from './container/SubjectInput/SubjectInput';
 import RadioForm from './sharedcomponents/RadioForm/RadioForm';
-import UserSelect from './sharedcomponents/UserSelect/UserSelect';
+import SubjectSelect from './sharedcomponents/SubjectSelect/SubjectSelect';
 import Selection from './container/Selection/Selection';
+import Modal from './sharedcomponents/Modal/Modal';
 
 
-const backEndAPIs = {
+const BACK_END_API = {
   mdb: {
     
     create: "/createMDB",
     view: '/viewMDB',
+    update: '/updatefile',
   },
   file: {
     create: "/createfile",
@@ -27,11 +29,11 @@ const backEndAPIs = {
 
 }
 
-// { title: "placeholder", user: "t", listItems: [{ userInput: "here", numbers: [1, 2, 3, 4] }], _id: "123" },
-// { title: "2placeholder", user: "2t", listItems: [{ userInput: "2here", numbers: [1, 2, 3, 4] }], _id: "1234" }
+// { title: "placeholder", subject: "t", listItems: [{ subjectInput: "here", numbers: [1, 2, 3, 4] }], _id: "123" },
+// { title: "2placeholder", subject: "2t", listItems: [{ numbers: [1, 2, 3, 4] },{ subjectInput: "2here"], _id: "1234" }
 
 class App extends Component {
-
+// REFACTOR MAKE CONTROLED COMPONENT LOCAL AN CHANGE SUBMIT TO ACCOUNT FOR THIS
   constructor() {
     super();
       this.state = {
@@ -39,29 +41,29 @@ class App extends Component {
         data : [
          
       ],
-      // need log in page user authentication and authorization
-        user: "default",
-
-        title: "",
-        userInput: "",
-        numbers: [],
+      // need log in page subject authentication and authorization
+        subject: "default",
         backEnd: "mdb",
-        backEndAPIs: backEndAPIs.mdb,
-        usersList: [],
-        currentUser: "default",
+        BACK_END_API: BACK_END_API.mdb,
+        subjectsList: [],
+        currentSubject: "default",
+        isShowModal: false,
+        dataForEdit: "",
     }
 
   
 
-    this.handleChangeInput = this.handleChangeInput.bind(this);
+  
     this.submitDataInput = this.submitDataInput.bind(this);
+    
+    this.delData = this.delData.bind(this);
   }
   componentDidMount(){
    //let dataToDisplay =
 
-    Promise.all([this.showDataToDisplay(), this.showUsers(), this]).then(function ([data, users, self]) {
+    Promise.all([this.showDataToDisplay(), this.showSubjects(), this]).then(function ([data, subjects, self]) {
    
-      self.setState({ data: data , usersList: users });
+      self.setState({ data: data , subjectsList: subjects });
     })
 
   }
@@ -71,15 +73,15 @@ class App extends Component {
 
     }
 
-    if(prevState.currentUser !== this.state.currentUser){
+    if(prevState.currentSubject !== this.state.currentSubject){
       Promise.resolve(this.showDataToDisplay()).then( data => {
         this.setState({ data });
       }) 
     }
   }
 
-  showUsers = () => {
-    let url = this.state.backEndAPIs.view;
+  showSubjects = () => {
+    let url = this.state.BACK_END_API.view;
     return fetch(url)
       .then(function (response) {
         return response.json();
@@ -91,12 +93,12 @@ class App extends Component {
   }
 
   showDataToDisplay = () =>{
-    if (this.state.currentUser === ""){
+    if (this.state.currentSubject === ""){
       return [];
     }
-    let userUrl = `${this.state.backEndAPIs.view}/${this.state.currentUser}`
+    let subjectUrl = `${this.state.BACK_END_API.view}/${this.state.currentSubject}`
   
-   let a = fetch(userUrl)
+   let a = fetch(subjectUrl)
       .then(function (response) {  
         return response.json();
       },err =>{
@@ -109,11 +111,48 @@ class App extends Component {
       })
 
     return a;
-      // .catch(err => {
-      //   console.log("err", err);
-      //   return null;
-      // })
     
+  }
+  
+  // findAndDelete()
+  async delData(index)  {
+   let id =  this.state.data[index]._id;
+   let url = `/delete/${id}`;
+    this.setState(currentState => {
+      let data = [...currentState.data];
+
+      data.splice(index, 1);
+ 
+      return { data }
+    });
+    const rawResponse = await fetch(url);
+ 
+    //rawResponse
+  }
+
+  editData = (event,index) =>{
+    //event.stopPropagation();
+    // get index from when subject clickes button 
+    // use index to slect the correct data
+    let selectedData = this.state.data[index];
+  
+    // set isShowModal to true
+
+      this.setState({ dataForEdit: selectedData, });
+    // pass the selected index data from state.data and pass to modal props
+    this.toggleModal();
+  }
+
+  toggleModal = (e) => {
+    if(e == null){
+      this.setState({isShowModal: true} );
+    }
+    else if (e.target.className === e.currentTarget.className){
+        this.setState({ isShowModal: false });
+    }
+ 
+    
+   
   }
 
   changeDataInCard(e){
@@ -130,41 +169,43 @@ class App extends Component {
       });
       const content = await rawResponse.json();
 
-      console.log(content);
     })();
   }
 
-  handleChangeInput(e){
-    var userData
+  handleChangeInput = (e) =>{
+    var subjectData
     if (e.target.name === "numbers"){
-      userData =  ("" + e.target.value).split('').map(Number) 
+      subjectData =  ("" + e.target.value).split('').map(Number) 
    }
    else{
-      userData = e.target.value;
+      subjectData = e.target.value;
    }
-    this.setState({ [e.target.name]: userData });
+    this.setState({ [e.target.name]: subjectData });
   }
   handleChangeRadio = (e) => {
-  //  backEndAPIs[e.target.value];
-    this.setState({ backEndAPIs: backEndAPIs[e.target.value]});
+  //  BACK_END_API[e.target.value];
+    this.setState({ BACK_END_API: BACK_END_API[e.target.value]});
   }
-  handleSubmitButton = (e) =>{
-    e.preventDefault();
+  handleSubmitButton = (subjectData, editId = "") =>{
+    
+    let url = this.state.BACK_END_API.create;
+  
+    let { title, subjectInput, numbers} = subjectData;
+    let subject = this.state.subject;
 
-    let clear = () => {
-      this.setState({ title: "", userInput: "", numbers: [] })
-    }
-
-     let user= this.state.user;
-
-     let title= this.state.title;
-     let userInput= this.state.userInput;
-     let numbers= this.state.numbers;
       let body = {
-        user,
+        subject,
         title,
-        listItems: [{ userInput, numbers}],
+        listItems: [{numbers}, { subjectInput}],
+
     }
+    if (editId !== "") {
+     body._id = editId;
+      body.subject = this.state.currentSubject;
+     url = this.state.BACK_END_API.update;
+    //  this.setState({ isShowModal: false });
+    }
+
     let reqData = {
       method: 'post',
       headers: {
@@ -173,35 +214,52 @@ class App extends Component {
       },
       body: JSON.stringify(body)
     }
-    fetch(this.state.backEndAPIs.create, reqData)
+    fetch(url, reqData)
       .then(response => {
         
        
         return response.json();
       })
       .then((myJson) => {
-        console.log('response.ops', myJson);
+
         this.submitDataInput(myJson);
-        console.log("asssssss",JSON.stringify(myJson));
+
       });
 
   }
 
   submitDataInput(newData){
-
+    console.log('newData', newData);
     this.setState(currentState => {
       let clearedState = {
-        title: "", userInput: "", numbers: [],
-       data: [...currentState.data]
-       }
-   //    debugger;
-      if (currentState.currentUser === newData.user){
-        clearedState.data  = clearedState.data.concat(newData);
+        
+        data: [...currentState.data]
       }
-      
-      return {...clearedState}
+      let subjectsList = [...currentState.subjectsList];
+      let foundEdit = currentState.data.findIndex(function (element,index) {
+          return element._id === newData._id
+
+      });
+
+   //    debugger;
+      if (currentState.currentSubject === newData.subject && foundEdit === -1){
+        clearedState.data  = clearedState.data.concat(newData);
+        
+      }
+      if (currentState.subjectsList.indexOf(newData.subject) === -1){
+        subjectsList = subjectsList.concat(newData.subject);
+      }
+
+      if (foundEdit !== -1){
+       //let copyData =  [...currentState.data];
+        clearedState.data.splice(foundEdit, 1, newData);
+        
+        //[foundEdit] = newData;
+      }
+    
+      return { ...clearedState, subjectsList}
     });
-    this.setState();
+    
   }
 
   handleChangeBackEnd(){
@@ -215,30 +273,33 @@ class App extends Component {
     // });
   }
 
-  hadleChangeUser = (e) =>{
+  hadleChangesubject = (e) =>{
    let name = e.target.value;
    console.log('name', name);
-    this.setState({ currentUser: name });
+    this.setState({ currentSubject: name });
   }
   
   render() {
+
     return (
       <div className="App">
-      <menu>filter data from certain users 
+     
+        <Modal submit={this.handleSubmitButton} isShowModal={this.state.isShowModal} toggleModal={this.toggleModal} dataForEdit={this.state.dataForEdit}/>
+      <menu>filter data from certain subjects 
     
-        <Selection changeRadio={this.handleChangeRadio} changeUser={this.hadleChangeUser} usersList={this.state.usersList}></Selection>
+        <Selection changeRadio={this.handleChangeRadio} changeSubject={this.hadleChangesubject} subjectsList={this.state.subjectsList}></Selection>
         
       </menu>
         <div>So let me get this straight... the song was originally a Danish pop song by Lis Soreson and then Ednaswap made a more grungy cover with original english lyrics and then Natalie Imbrugila made the cover in the original pop style with the lyrics from Ednaswap.</div>
-        <DataDisplay data={this.state.data}>count number of total data here</DataDisplay>
-        <UserInput title={this.state.title} userInput={this.state.userInput} numbers={this.state.numbers} changeInput={this.handleChangeInput} submit={this.handleSubmitButton}/>
+        <DataDisplay delData={this.delData} editData={this.editData} data={this.state.data}>count number of total data here</DataDisplay>
+        <SubjectInput submit={this.handleSubmitButton}/>
         <ButtonCustom clickEvent={this.handleClearInput} type={"cancel-button"}>Clear</ButtonCustom>
 
      
         <div>
 
         <div className="name-container">
-            <input type="text" value={this.state.user} onChange={this.handleChangeInput} name="user"/>
+            <input type="text" value={this.state.subject} onChange={this.handleChangeInput} name="subject"/>
             <button >Clear Name</button>
         </div>
      

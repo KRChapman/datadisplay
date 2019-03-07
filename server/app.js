@@ -1,8 +1,8 @@
 const axios = require('axios');
-const UserData = require('./models/mongodb/index.js');
+const SubjectData = require('./models/mongodb/index.js');
 const express = require('express');
 const initializeDatabases = require('./db/mongodb');
-const routesAPI = require('./api/mdb');
+const routesAPI = require('./api/mdb/mdb');
 var bodyParser = require('body-parser');
 //console.log("s",mdb);
 const app = express();

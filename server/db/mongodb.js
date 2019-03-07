@@ -32,7 +32,7 @@ function connect(url) {
   })
 }
 
-class UserData {
+class SubjectData {
 
   constructor(database){
     this.db = database;
@@ -40,7 +40,7 @@ class UserData {
 
   insertArbitrary(){
     
-    const collection = this.db.collection('UserData');    
+    const collection = this.db.collection('SubjectData');    
     
         collection.insertMany([
       { a: 1 }, { a: 2 }, { a: 3 }

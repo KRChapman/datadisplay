@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import RadioForm from '../../sharedcomponents/RadioForm/RadioForm';
-import UserSelect from '../../sharedcomponents/UserSelect/UserSelect';
+import SubjectSelect from '../../sharedcomponents/SubjectSelect/SubjectSelect';
 
 
 class Selection extends Component {
@@ -13,15 +13,15 @@ class Selection extends Component {
   render() { 
 
   
-    const { changeRadio, changeUser, usersList} = this.props;
-    let numberOfColumns = usersList.length / 2 - 1;
+    const { changeRadio, changeSubject, subjectsList} = this.props;
+    let numberOfColumns = subjectsList.length / 2 - 1;
     /// 2 - 1;
-    let selectionWidth = usersList.length <= 2 ? 110 : Math.ceil(numberOfColumns)  * 110;
+    let selectionWidth = subjectsList.length <= 2 ? 110 : Math.ceil(numberOfColumns)  * 110;
     let width = selectionWidth + this.state.width + "px";
     return ( 
       <div className="selection-container" style={{width: width}}>
         <RadioForm changeRadio={changeRadio} />
-        <UserSelect changeUser={changeUser} usersList={usersList} />
+        <SubjectSelect changeSubject={changeSubject} subjectList={subjectsList} />
       </div>
      )
   }
