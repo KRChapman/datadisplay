@@ -8,29 +8,9 @@ import RadioForm from './sharedcomponents/RadioForm/RadioForm';
 import SubjectSelect from './sharedcomponents/SubjectSelect/SubjectSelect';
 import Selection from './container/Selection/Selection';
 import Modal from './sharedcomponents/Modal/Modal';
+import {BACK_END_API} from './helper/helper';
+import LogIn from './container/Login/Index';
 
-
-const BACK_END_API = {
-  mdb: {
-    
-    create: "/createMDB",
-    view: '/viewMDB',
-    update: '/updatefile',
-  },
-  file: {
-    create: "/createfile",
-    view: '/viewfile',
-    update: '/updatefile',
-    delete: '/deletefile',
-  },
-  pg: {
-
-  }
-
-}
-
-// { title: "placeholder", subject: "t", listItems: [{ subjectInput: "here", numbers: [1, 2, 3, 4] }], _id: "123" },
-// { title: "2placeholder", subject: "2t", listItems: [{ numbers: [1, 2, 3, 4] },{ subjectInput: "2here"], _id: "1234" }
 
 class App extends Component {
 // REFACTOR MAKE CONTROLED COMPONENT LOCAL AN CHANGE SUBMIT TO ACCOUNT FOR THIS
@@ -44,33 +24,29 @@ class App extends Component {
       // need log in page subject authentication and authorization
         subject: "default",
         backEnd: "mdb",
-        BACK_END_API: BACK_END_API.mdb,
+        currentBackEnd: "file",
         subjectsList: [],
         currentSubject: "default",
         isShowModal: false,
         dataForEdit: "",
     }
-
-  
-
-  
-    this.submitDataInput = this.submitDataInput.bind(this);
-    
+    this.submitDataInput = this.submitDataInput.bind(this); 
     this.delData = this.delData.bind(this);
   }
+
   componentDidMount(){
-   //let dataToDisplay =
+    this.getSubjectsAndData();
+  }
 
+  getSubjectsAndData() {
     Promise.all([this.showDataToDisplay(), this.showSubjects(), this]).then(function ([data, subjects, self]) {
-   
-      self.setState({ data: data , subjectsList: subjects });
-    })
-
+      self.setState({ data: data, subjectsList: subjects });
+    });
   }
 
   componentDidUpdate(prevProps, prevState){
-    if(this.state.data !== prevState.data){
-
+    if (prevState.currentBackEnd !== this.state.currentBackEnd){
+      this.getSubjectsAndData();
     }
 
     if(prevState.currentSubject !== this.state.currentSubject){
@@ -81,7 +57,8 @@ class App extends Component {
   }
 
   showSubjects = () => {
-    let url = this.state.BACK_END_API.view;
+    
+    let url = BACK_END_API[this.state.currentBackEnd].view;
     return fetch(url)
       .then(function (response) {
         return response.json();
@@ -96,11 +73,17 @@ class App extends Component {
     if (this.state.currentSubject === ""){
       return [];
     }
-    let subjectUrl = `${this.state.BACK_END_API.view}/${this.state.currentSubject}`
+    let subjectUrl = `${BACK_END_API[this.state.currentBackEnd].view}/${this.state.currentSubject}`
   
    let a = fetch(subjectUrl)
       .then(function (response) {  
-        return response.json();
+        if (response.status >= 200 && response.status < 300) {
+          return response.json();
+        } else {
+  
+          return [];
+        }
+        //return response.json();
       },err =>{
                 console.log("err", err);
         return null;
@@ -114,10 +97,9 @@ class App extends Component {
     
   }
   
-  // findAndDelete()
   async delData(index)  {
    let id =  this.state.data[index]._id;
-   let url = `/delete/${id}`;
+    let url = `${BACK_END_API[this.state.currentBackEnd].delete}/${id}`;
     this.setState(currentState => {
       let data = [...currentState.data];
 
@@ -126,20 +108,11 @@ class App extends Component {
       return { data }
     });
     const rawResponse = await fetch(url);
- 
-    //rawResponse
   }
 
   editData = (event,index) =>{
-    //event.stopPropagation();
-    // get index from when subject clickes button 
-    // use index to slect the correct data
     let selectedData = this.state.data[index];
-  
-    // set isShowModal to true
-
-      this.setState({ dataForEdit: selectedData, });
-    // pass the selected index data from state.data and pass to modal props
+    this.setState({ dataForEdit: selectedData, });
     this.toggleModal();
   }
 
@@ -182,28 +155,25 @@ class App extends Component {
    }
     this.setState({ [e.target.name]: subjectData });
   }
+
   handleChangeRadio = (e) => {
-  //  BACK_END_API[e.target.value];
-    this.setState({ BACK_END_API: BACK_END_API[e.target.value]});
+    this.setState({currentBackEnd:e.target.value});
   }
+
   handleSubmitButton = (subjectData, editId = "") =>{
-    
-    let url = this.state.BACK_END_API.create;
-  
+    let url = BACK_END_API[this.state.currentBackEnd].create;
     let { title, subjectInput, numbers} = subjectData;
     let subject = this.state.subject;
-
-      let body = {
-        subject,
-        title,
-        listItems: [{numbers}, { subjectInput}],
-
+    let body = {
+      subject,
+      title,
+      listItems: [{ numbers }, { subjectInput }],
     }
     if (editId !== "") {
      body._id = editId;
       body.subject = this.state.currentSubject;
-     url = this.state.BACK_END_API.update;
-    //  this.setState({ isShowModal: false });
+      url = BACK_END_API[this.state.currentBackEnd].update;
+
     }
 
     let reqData = {
@@ -216,16 +186,11 @@ class App extends Component {
     }
     fetch(url, reqData)
       .then(response => {
-        
-       
         return response.json();
       })
       .then((myJson) => {
-
         this.submitDataInput(myJson);
-
       });
-
   }
 
   submitDataInput(newData){
@@ -237,11 +202,12 @@ class App extends Component {
       }
       let subjectsList = [...currentState.subjectsList];
       let foundEdit = currentState.data.findIndex(function (element,index) {
-          return element._id === newData._id
+
+   
+        return element._id === newData._id
 
       });
 
-   //    debugger;
       if (currentState.currentSubject === newData.subject && foundEdit === -1){
         clearedState.data  = clearedState.data.concat(newData);
         
@@ -265,12 +231,6 @@ class App extends Component {
   handleChangeBackEnd(){
 
    
-
-    // this.setState(currentState => {
-    //   currentState.backEnd
-
-    //   return {}
-    // });
   }
 
   hadleChangesubject = (e) =>{
@@ -278,7 +238,7 @@ class App extends Component {
    console.log('name', name);
     this.setState({ currentSubject: name });
   }
-  
+     
   render() {
 
     return (
@@ -286,9 +246,12 @@ class App extends Component {
      
         <Modal submit={this.handleSubmitButton} isShowModal={this.state.isShowModal} toggleModal={this.toggleModal} dataForEdit={this.state.dataForEdit}/>
       <menu>filter data from certain subjects 
-    
-        <Selection changeRadio={this.handleChangeRadio} changeSubject={this.hadleChangesubject} subjectsList={this.state.subjectsList}></Selection>
-        
+         <div>
+            <LogIn />
+         </div >
+        <Selection currentBackEnd={this.state.currentBackEnd} changeRadio={this.handleChangeRadio} changeSubject={this.hadleChangesubject} subjectsList={this.state.subjectsList}></Selection>
+          
+
       </menu>
         <div>So let me get this straight... the song was originally a Danish pop song by Lis Soreson and then Ednaswap made a more grungy cover with original english lyrics and then Natalie Imbrugila made the cover in the original pop style with the lyrics from Ednaswap.</div>
         <DataDisplay delData={this.delData} editData={this.editData} data={this.state.data}>count number of total data here</DataDisplay>

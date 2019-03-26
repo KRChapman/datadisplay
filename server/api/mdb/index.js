@@ -1,12 +1,13 @@
-// const express = require('express'),
-//   router = express.Router();
-
+const express = require('express'),
+      router = express.Router();
 const {ObjectID} = require('mongodb');
+let mdbController = require('./mdbController');
 
+module.exports = function (dbs) {
+  mdbController = mdbController(dbs);
 
-module.exports = function (app, dbs) {
   let subjectData = "subjectData"
-  app.post('/createMDB', (req, res) => {
+  router.post('/createMDB', (req, res) => {
   //  console.log("reqreq", req.body);
     dbs.production.collection(subjectData).insertOne(req.body,(err, docs) => {
       if (err) {
@@ -18,37 +19,20 @@ module.exports = function (app, dbs) {
     })
   })
 
-  app.get('/viewMDB', (req, res) => {
+   // view subjects for subject button selection
+  router.get('/viewMDB', mdbController.getAllSubjects)
 
-    let subjectname = req.params.subject;
-    dbs.production.collection(subjectData).distinct("subject").then((docs) => {
+    // view data for each subject in card
+  router.get('/viewMDB/:subject', mdbController.getIndividualSubjectData)
 
-      res.json(docs);
-    }).catch(error => {
-      console.log("errvewMDB", error);
-    })
-  })
-
-  app.get('/viewMDB/:subject', (req,res) =>{
-
-    let subjectname = req.params.subject;
-    dbs.production.collection(subjectData).find({ subject: subjectname }).toArray().then((docs) =>{
-
-        res.json(docs);
-  
-    }).catch(error =>{
-      console.log("errvewMDB", error);
-    })
-  })
-
-  app.get('/delete/:id', (req, res) =>{
+  router.get('/deleteMDB/:id', (req, res) =>{
     let id = req.params.id;
    // "_id"
     dbs.production.collection(subjectData).deleteOne({ _id: ObjectID(id)  });
 
   })
 
-  app.post('/updatefile',(req, res) => {
+  router.post('/updateMDB',(req, res) => {
     console.log("req.body", req.body);
     const {_id, subject, title, listItems} = req.body;
     dbs.production.collection(subjectData).findOneAndUpdate({ _id: ObjectID(_id) }, 
@@ -60,5 +44,8 @@ module.exports = function (app, dbs) {
     }) 
   })
 
-  return app
-}
+
+
+ 
+ return router;
+} 

@@ -2,11 +2,14 @@ const axios = require('axios');
 const SubjectData = require('./models/mongodb/index.js');
 const express = require('express');
 const initializeDatabases = require('./db/mongodb');
-const routesAPI = require('./api/mdb/mdb');
+const routesAPI = require('./api/routes');
 var bodyParser = require('body-parser');
 //console.log("s",mdb);
 const app = express();
 const port = process.env.PORT || 5000;
+
+const mongoose = require('./db/mongoose');
+const Users = require('./models/mongoose/users')
 
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
@@ -15,8 +18,14 @@ app.get('/', (req, res) => {
   //  res.redirect('/api/hello');
   // let a = production();
   // console.log("db", a);
+  Users.create({ username: 'small' }, function (err, small) {
 
-  console.log('hello');
+   // if (err) return handleError(err);
+    if (err) console.log('create errerr', err);
+
+    console.log('hello', small);
+  });
+  
 });
 
 
@@ -38,3 +47,12 @@ initializeDatabases().then(dbs => {
   console.error(err)
   process.exit(1)
 })
+
+const jwt = require('jsonwebtoken');
+
+
+// const myFunction = async () => {
+//  const token = jwt.sign({}, "string")
+// }
+
+// myFunction();

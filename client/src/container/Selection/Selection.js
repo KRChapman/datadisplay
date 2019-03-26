@@ -10,21 +10,29 @@ class Selection extends Component {
       width: 168,
     }
   }
+  changeSubjectWidth(subjectsList) {
+    const firstColumn = 1;
+    const btnWidth = 110;
+    const numberOfColumns = subjectsList.length / 2 - firstColumn;
+    const selectionWidth = subjectsList.length <= 2 ? btnWidth : Math.ceil(numberOfColumns) * btnWidth;
+    const width = selectionWidth + this.state.width + "px";
+    return width;
+  }
   render() { 
 
-  
+
     const { changeRadio, changeSubject, subjectsList} = this.props;
-    let numberOfColumns = subjectsList.length / 2 - 1;
-    /// 2 - 1;
-    let selectionWidth = subjectsList.length <= 2 ? 110 : Math.ceil(numberOfColumns)  * 110;
-    let width = selectionWidth + this.state.width + "px";
+    let width = this.changeSubjectWidth(subjectsList);
+ 
     return ( 
       <div className="selection-container" style={{width: width}}>
-        <RadioForm changeRadio={changeRadio} />
+        <RadioForm currentBackEnd={this.props.currentBackEnd} changeRadio={changeRadio} />
         <SubjectSelect changeSubject={changeSubject} subjectList={subjectsList} />
       </div>
      )
   }
+
+
 }
  
 export default Selection;

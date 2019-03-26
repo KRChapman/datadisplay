@@ -63,10 +63,10 @@ class DataDisplay extends Component {
   }
   render() { 
 
-    let {borderColor} = this.state;
+    let {borderColors} = this.state;
     let cards = this.props.data.length !== 0 ? this.props.data.map((ele, i) => {
 
-      return <Card delData={this.props.delData} editData={this.props.editData} index={i} borderColor={this.state.borderColors[i]} title={ele.title} subject={ele.subject} listitems={ele.listItems} key={ele._id} />;
+      return <Card delData={this.props.delData} editData={this.props.editData} index={i} borderColor={borderColors[i]} title={ele.title} subject={ele.subject} listitems={ele.listItems} key={ele._id} />;
     })
       :
       <div style={{ height: "100px" }}>No DATA</div>;
