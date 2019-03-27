@@ -51,7 +51,7 @@ module.exports = function() {
       let _id = Math.floor(Math.random() * Math.floor(999999))
       incData["_id"] = _id;
       let userData = [...json, incData ];
-      console.log('userData', userData);
+    
      // json.push('search result: ' + currentSearchResult);
       //json[incData.t] = incData;
       try {

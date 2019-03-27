@@ -1,26 +1,26 @@
-const axios = require('axios');
-const SubjectData = require('./models/mongodb/index.js');
 const express = require('express');
 const initializeDatabases = require('./db/mongodb');
 const routesAPI = require('./api/routes');
 var bodyParser = require('body-parser');
-//console.log("s",mdb);
+
 const app = express();
 const port = process.env.PORT || 5000;
 
 const mongoose = require('./db/mongoose');
-const Users = require('./models/mongoose/users')
+const Users = require('./models/mongoose/users');
+
+// app.use((req,res, next) =>{
+//   console.log('req.method req.path', req.method, req.path);
+//   next();
+// })
 
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
 app.get('/', (req, res) => {
-  //  res.redirect('/api/hello');
-  // let a = production();
-  // console.log("db", a);
-  Users.create({ username: 'small' }, function (err, small) {
+console.log('Users', Users);
+  Users.create({ username: 'small', password: 'hi' }, function (err, small) {
 
-   // if (err) return handleError(err);
     if (err) console.log('create errerr', err);
 
     console.log('hello', small);
@@ -48,11 +48,3 @@ initializeDatabases().then(dbs => {
   process.exit(1)
 })
 
-const jwt = require('jsonwebtoken');
-
-
-// const myFunction = async () => {
-//  const token = jwt.sign({}, "string")
-// }
-
-// myFunction();

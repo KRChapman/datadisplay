@@ -2,6 +2,7 @@ const express = require('express'),
       router = express.Router();
 const {ObjectID} = require('mongodb');
 let mdbController = require('./mdbController');
+  const auth = require('./../../middleware/auth');
 
 module.exports = function (dbs) {
   mdbController = mdbController(dbs);
@@ -20,7 +21,7 @@ module.exports = function (dbs) {
   })
 
    // view subjects for subject button selection
-  router.get('/viewMDB', mdbController.getAllSubjects)
+  router.get('/viewMDB', auth, mdbController.getAllSubjects)
 
     // view data for each subject in card
   router.get('/viewMDB/:subject', mdbController.getIndividualSubjectData)

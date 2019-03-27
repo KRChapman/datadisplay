@@ -4,7 +4,7 @@
 module.exports = function(dbs){
   let subjectData = "subjectData"
   function getAllSubjects(req, res) {
-
+      console.log('req.user', req.user);
     let subjectname = req.params.subject;
     dbs.production.collection(subjectData).distinct("subject").then((docs) => {
 

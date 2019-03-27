@@ -2,15 +2,15 @@ const express = require('express'),
 
       Mdb = require('./mdb/index'),
       file = require('./file/file'),
-      login = require('./login/index')
+      user = require('./users/index');
 module.exports = function(app,db) {
   // app and db passed in from app.js routesAPI() to .listen
   let mdb = Mdb(db);
   let files = file();
-  let log = login();
+  let users = user();
   app.use('/file', files);
   app.use('/mdb', mdb);
-  app.use('/users', log);
+  app.use('/users', users);
   
   app.use(function (err, req, res, next) {
 

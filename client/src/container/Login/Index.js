@@ -13,7 +13,7 @@ class LogIn extends Component {
   async handleSubmit(e){
     e.preventDefault();
 
-    let url = '/users/login'
+    let url = '/users/signup'
    // console.log('thisthis', this.username, this.password);
     let body = {
       username: this.username.current.value,
