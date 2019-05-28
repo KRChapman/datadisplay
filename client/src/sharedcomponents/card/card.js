@@ -3,7 +3,7 @@ import React from 'react';
 const Card = (props) => {
 
  let numbers = props.listitems[0].numbers.map((ele,i) => {
-   return <li  key={i}>{ele}</li>
+   return <li className='numbers'  key={i}>{ele}</li>
   })
   
   return (

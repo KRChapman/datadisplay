@@ -1,3 +1,5 @@
+// authentication with higher order component 
+// https://medium.com/@romanchvalbo/how-i-set-up-react-and-node-with-json-web-token-for-authentication-259ec1a90352
 import React, { Component } from 'react';
 import logo from './logo.svg';
 import './App.scss';
@@ -10,6 +12,7 @@ import Selection from './container/Selection/Selection';
 import Modal from './sharedcomponents/Modal/Modal';
 import {BACK_END_API} from './helper/helper';
 import LogIn from './container/Login/Index';
+import authMethods from './helper/authMrthods';
 
 
 class App extends Component {
@@ -29,7 +32,10 @@ class App extends Component {
         currentSubject: "default",
         isShowModal: false,
         dataForEdit: "",
+        error: null,
     }
+    this.authMethods = new authMethods();
+
     this.submitDataInput = this.submitDataInput.bind(this); 
     this.delData = this.delData.bind(this);
   }
@@ -39,7 +45,12 @@ class App extends Component {
   }
 
   getSubjectsAndData() {
-    Promise.all([this.showDataToDisplay(), this.showSubjects(), this]).then(function ([data, subjects, self]) {
+    Promise.all([this.showDataToDisplay(), this.showSubjects(), this]).then(function ([data, subjects , self]) {
+      if (subjects.error){
+        self.setState({ error: subjects.error });
+        subjects = [];
+      }
+
       self.setState({ data: data, subjectsList: subjects });
     });
   }
@@ -57,16 +68,35 @@ class App extends Component {
   }
 
   showSubjects = () => {
-    
-    let url = BACK_END_API[this.state.currentBackEnd].view;
-    return fetch(url)
-      .then(function (response) {
-        return response.json();
-      })
-      .then(function (myJson) {
-        return myJson;
+ 
+    const authFeth = () =>{
+      let url = BACK_END_API[this.state.currentBackEnd].view;
+    return  this.authMethods.fetch(url);
+    }
 
-      });
+
+    let manualFetch = () =>{
+      let manualToken = this.authMethods.getToken();
+      let headers = { Authorization: `Bearer ${manualToken}` }
+
+      let url = BACK_END_API[this.state.currentBackEnd].view;
+      let reqData = {
+        method: "GET",
+       headers
+      }
+      //, reqData
+      return fetch(url, reqData)
+        .then(function (response) {
+          return response.json();
+        })
+        .then(function (myJson) {
+          return myJson;
+
+        });
+    }
+   return manualFetch();
+  // return authFeth();
+ 
   }
 
   showDataToDisplay = () =>{
@@ -74,10 +104,11 @@ class App extends Component {
       return [];
     }
     let subjectUrl = `${BACK_END_API[this.state.currentBackEnd].view}/${this.state.currentSubject}`
-  
+  //  subjectUrl = "http://localhost:5000/" + subjectUrl
    let a = fetch(subjectUrl)
       .then(function (response) {  
         if (response.status >= 200 && response.status < 300) {
+          // console.log('response', response);
           return response.json();
         } else {
   
@@ -156,6 +187,7 @@ class App extends Component {
     this.setState({ [e.target.name]: subjectData });
   }
 
+  //handleChangeBackEnd
   handleChangeRadio = (e) => {
     this.setState({currentBackEnd:e.target.value});
   }
@@ -194,7 +226,7 @@ class App extends Component {
   }
 
   submitDataInput(newData){
-    console.log('newData', newData);
+
     this.setState(currentState => {
       let clearedState = {
         
@@ -228,22 +260,18 @@ class App extends Component {
     
   }
 
-  handleChangeBackEnd(){
-
-   
-  }
 
   hadleChangesubject = (e) =>{
    let name = e.target.value;
-   console.log('name', name);
+
     this.setState({ currentSubject: name });
   }
      
   render() {
-
+    let error = this.state.error ? <ErrorComponent message={this.state.error}/> : null;
     return (
       <div className="App">
-     
+
         <Modal submit={this.handleSubmitButton} isShowModal={this.state.isShowModal} toggleModal={this.toggleModal} dataForEdit={this.state.dataForEdit}/>
       <menu>filter data from certain subjects 
          <div>
@@ -264,14 +292,23 @@ class App extends Component {
         <div className="name-container">
             <input type="text" value={this.state.subject} onChange={this.handleChangeInput} name="subject"/>
             <button >Clear Name</button>
+            {error}
         </div>
-     
+      
         </div>
-    
+      
       </div>
     );
   }
 
+}
+
+function ErrorComponent(props){
+
+  return (
+    <div>
+      <h1>{props.message}</h1></div>
+  )
 }
 
 export default App;

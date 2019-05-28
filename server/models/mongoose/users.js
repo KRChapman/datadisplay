@@ -37,13 +37,23 @@ var userSchema = new Schema({
 
 userSchema.methods.generateAuthToken = async function(){
   const user = this;
-  console.log('user._id.', user._id );
-  const token = jwt.sign({_id: user._id.toString()}, 'putinenvvariable');
+  console.log('process.env.JWT_SECRETaaaaaaaa', process.env.JWT_SECRET );
+  const token = jwt.sign({ _id: user._id.toString() }, process.env.JWT_SECRET, { expiresIn: '7 days' });
 
   user.tokens = user.tokens.concat({token});
   await user.save();
   return token;
 }
+// .toJSON
+userSchema.methods.getPublicProfile =  function () {
+  const user = this;
+              // from mongoose turns it into regular object
+  let publicProfile = user.toObject();
+  delete publicProfile.password;
+  delete publicProfile.tokens;
+  return publicProfile;
+}
+
 
 // this binding will not play a roll so arrow ok
 userSchema.statics.findByCredentials = async (password, username) => {

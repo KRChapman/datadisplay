@@ -1,7 +1,21 @@
 var mongoose = require('mongoose');
-const dbName = 'mdbMessAround';
+
+
+
+let url;
+if (process.env.NODE_ENV === 'test'){
+   url = process.env.MONGODB_URL;
+}
+else{
+  const dbName = process.env.MONGODB_DB || 'mdbMessAround';
+   url = process.env.MONGODB_URI || `mongodb://localhost:27017/`
+  url = url + dbName;
+}
+
+console.log('process.env.JWT_SECRETAAAASSSSSS', process.env.MONGODB_DB );
 mongoose.Promise = global.Promise;
-mongoose.connect(process.env.MONGODB_URI || `mongodb://localhost:27017/${dbName}`, 
+// let urlConst = `mongodb://localhost:27017/mdbMessAround`
+mongoose.connect(url, 
   { useNewUrlParser: true, useCreateIndex: true, }, function (error) {
   if (error) {
     console.log("error", error);
@@ -9,4 +23,4 @@ mongoose.connect(process.env.MONGODB_URI || `mongodb://localhost:27017/${dbName}
 }, )
 // mongoose.connect('mongodb://localhost:27017/VotingApp');
 
-module.exports = { mongoose };
+//module.exports = { mongoose };

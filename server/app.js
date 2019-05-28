@@ -1,31 +1,19 @@
 const express = require('express');
-const initializeDatabases = require('./db/mongodb');
-const routesAPI = require('./api/routes');
-var bodyParser = require('body-parser');
 
-const app = express();
-const port = process.env.PORT || 5000;
+      bodyParser = require('body-parser'),
 
-const mongoose = require('./db/mongoose');
-const Users = require('./models/mongoose/users');
-
-// app.use((req,res, next) =>{
-//   console.log('req.method req.path', req.method, req.path);
-//   next();
-// })
-
+      app = express(),
+      Mdb = require('./api/mdb/index'),
+      file = require('./api/file/file'),
+      user = require('./api/users/index');
+require('./db/mongoose');
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
 app.get('/', (req, res) => {
-console.log('Users', Users);
-  Users.create({ username: 'small', password: 'hi' }, function (err, small) {
+ // console.log('Users', Users);
 
-    if (err) console.log('create errerr', err);
-
-    console.log('hello', small);
-  });
-  
+  res.send({ h: "hi" });
 });
 
 
@@ -33,18 +21,22 @@ app.get('/api/hello', (req, res) => {
   res.send({ express: 'Hello From Express' });
 });
 
+module.exports = function (db) {
 
+  // db passed in from index.js to .listen
+  let mdb = Mdb(db);
+  let files = file();
+  let users = user();
+  app.use('/file', files);
+  app.use('/mdb', mdb);
+  app.use('/users', users);
 
-// app.listen(port, () => console.log(`Listening on port ${port}`));
+  app.use(function (err, req, res, next) {
 
+    res.status(err.status || 500).send(err.message);
 
-// MONGODB
-initializeDatabases().then(dbs => {
-  // Initialize the application once database connections are ready.
-  routesAPI(app, dbs).listen(port, () => console.log(`Listening on port ${port}`))
-}).catch(err => {
-  console.error('Failed to make all database connections!')
-  console.error(err)
-  process.exit(1)
-})
+  });
 
+  
+  return app;
+}

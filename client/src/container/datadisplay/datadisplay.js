@@ -22,7 +22,7 @@ class DataDisplay extends Component {
 
         return number;
       })
-      console.log('borderColors', borderColors);
+
       // this.changeBorderColor(borderColors.blue);
       this.setBorderColor(borderColors);
     }

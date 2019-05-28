@@ -85,7 +85,7 @@ class SubjectInput extends Component {
 
       //   return { title: "", subjectInput: "", numbers: [], editId: "" }
       // });
-    console.log("this.stateLastLASTLAST", this.state)
+
     // console.log('editId', id);
 
   }

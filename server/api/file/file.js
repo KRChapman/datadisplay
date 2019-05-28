@@ -7,14 +7,14 @@ const fs = require('fs');
 module.exports = function() {
 
   router.get('/viewfile', (req, res) => {
-   
+
     try {
       var notes = fs.readFileSync(__dirname + '/test-data.json');
       notes = JSON.parse(notes);
 
       let listOfSubjcts = [...new Set(notes.map(x => x.subject))]
 
-      console.log('JSON.', listOfSubjcts);
+   
       res.json(listOfSubjcts);
 
     } catch (e) {
@@ -79,7 +79,7 @@ module.exports = function() {
       newData[found].title = title;
       newData[found].listItems = listItems
     
-      console.log('newData', newData);
+
       let dataforFile = JSON.stringify(newData);
       try {
         fs.writeFileSync(__dirname + '/test-data.json', dataforFile);
@@ -100,7 +100,7 @@ module.exports = function() {
         return ele._id === id;
       })
       parsedData.splice(index, 1);
-      console.log('delete', parsedData);
+
       try {
         fs.writeFileSync(__dirname + '/test-data.json', JSON.stringify(parsedData));
         res.json(parsedData);

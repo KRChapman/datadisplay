@@ -1,11 +1,18 @@
 const MongoClient = require('mongodb').MongoClient;
 const assert = require('assert');
 
+// var dotenv = require('dotenv');
+// var path = require('path');
+
+// let env = process.env.ENVIRONMENT || 'dev'
+// dotenv.config({ path: path.resolve(__dirname, `../../config/${env}.env`) });
+
 // Connection URL
-const url = 'mongodb://localhost:27017/';
+let url = process.env.MONGODB_URI || 'mongodb://localhost:27017/';
 
 // Database Name
-const dbName = 'mdbMessAround';
+const dbName = process.env.MONGODB_DB || 'mdbMessAround';
+url = url + dbName
 
 // Use connect method to connect to the server
 

@@ -5,8 +5,16 @@
   "scripts": {
     "client": "cd client && npm start",
     "installclient": "cd client && npm install",
-    "server": "nodemon server/app.js",
-    "dev": "concurrently --kill-others-on-fail \"npm run server\" \"npm run client\""
+    "testF": "cd client && npm run test",
+    "server": "nodemon server/index.js",
+    "dev": "concurrently --kill-others-on-fail \"npm run server\" \"npm run client\"",
+    "test": "jest --watch --runInBand --setupFiles dotenv/config"
+  },
+  "jest": {
+    "testEnvironment": "node",
+    "testPathIgnorePatterns": [
+      "client"
+    ]
   },
   "author": "kyle",
   "license": "ISC",
@@ -18,10 +26,15 @@
     "bcrypt": "^3.0.5",
     "bcryptjs": "^2.4.3",
     "body-parser": "^1.18.3",
+    "dotenv": "^8.0.0",
+    "env-cmd": "^9.0.1",
     "express": "^4.16.4",
+    "jest": "23.6.0",
     "jsonwebtoken": "^8.4.0",
+    "jwt-decode": "^2.2.0",
     "mongodb": "^3.1.13",
     "mongoose": "^5.4.19",
-    "pg": "^7.7.1"
+    "pg": "^7.7.1",
+    "supertest": "^4.0.2"
   }
 }

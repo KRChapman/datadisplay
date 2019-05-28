@@ -34,14 +34,14 @@ module.exports = function (dbs) {
   })
 
   router.post('/updateMDB',(req, res) => {
-    console.log("req.body", req.body);
+
     const {_id, subject, title, listItems} = req.body;
     dbs.production.collection(subjectData).findOneAndUpdate({ _id: ObjectID(_id) }, 
     { $set: { subject: subject, title: title, listItems: listItems }
       }, { returnOriginal: false})
     .then((doc) => {
       res.json(doc.value);
-      console.log('docdoc', doc );
+
     }) 
   })
 
